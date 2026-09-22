@@ -833,48 +833,105 @@
     /* =====================================================
        RESPONSIVE
        ===================================================== */
-    @media (max-width: 480px) {
-      .lirio-container.small {
-        width: 24vw;
-      }
 
-      .lirio-container.main {
-        width: 34vw;
-      }
+    /* ── Móvil vertical (hasta 480px) ── */
+    @media (max-width: 480px) {
+
+      /* Lirios */
+      .lirio-container.small { width: 22vw; }
+      .lirio-container.main  { width: 32vw; }
 
       #flores-wrapper {
-        padding-bottom: 2vh;
-        gap: 2vw;
+        padding-bottom: 3vh;
+        gap: 1.5vw;
+        align-items: flex-end;
       }
 
+      /* Fotos dentro de lirios */
       .foto-frame {
-        width: clamp(120px, 36vw, 170px);
-        height: clamp(120px, 36vw, 170px);
+        width:  clamp(100px, 30vw, 150px);
+        height: clamp(100px, 30vw, 150px);
+        top: 36%;
       }
-
       .lirio-container.main .foto-frame {
-        width: clamp(155px, 46vw, 210px);
-        height: clamp(155px, 46vw, 210px);
+        width:  clamp(130px, 38vw, 180px);
+        height: clamp(130px, 38vw, 180px);
+        top: 32%;
       }
 
-      /* En movil el texto baja un poco mas */
-      #dedicatoria {
-        padding-top: 5vh;
-      }
+      /* Textos */
+      #dedicatoria { padding-top: 6vh; }
+      #dedicatoria h1 { font-size: clamp(2rem, 10vw, 3rem); }
 
-      #finale {
-        padding-top: 3vh;
-      }
+      #finale { padding-top: 4vh; }
+      #nombre-final { font-size: clamp(3rem, 16vw, 5rem); }
+      .sub-message  { font-size: clamp(0.9rem, 4vw, 1.2rem); margin-top: 0.4em; }
+
+      /* Flores decorativas de fondo — más pequeñas en móvil */
+      #flores-fondo .flor-deco { opacity: 0.55; }
+
+      /* Overlay */
+      #tap-overlay .overlay-flowers { gap: 0.6rem; }
+      #tap-overlay .tap-title { font-size: clamp(1.8rem, 9vw, 3rem); }
+      #tap-overlay .tap-hint  { font-size: clamp(0.8rem, 3.5vw, 1rem); }
+      .overlay-flower-svg:nth-child(1) { width: 44px !important; height: 58px !important; }
+      .overlay-flower-svg:nth-child(2) { width: 66px !important; height: 84px !important; }
+      .overlay-flower-svg:nth-child(3) { width: 44px !important; height: 58px !important; }
+
+      /* Barra de progreso un poco más gruesa para que se vea */
+      #progress-bar { height: 4px; }
     }
 
-    @media (min-width: 1200px) {
-      .lirio-container.small {
-        width: 140px;
+    /* ── Móvil landscape (alto < 500px) ── */
+    @media (max-height: 500px) and (max-width: 900px) {
+
+      .lirio-container.small { width: 16vw; }
+      .lirio-container.main  { width: 22vw; }
+
+      #flores-wrapper { padding-bottom: 1vh; gap: 1vw; }
+
+      .foto-frame {
+        width:  clamp(80px, 22vw, 130px);
+        height: clamp(80px, 22vw, 130px);
+      }
+      .lirio-container.main .foto-frame {
+        width:  clamp(100px, 28vw, 150px);
+        height: clamp(100px, 28vw, 150px);
       }
 
-      .lirio-container.main {
-        width: 200px;
+      #dedicatoria { padding-top: 2vh; }
+      #dedicatoria h1 { font-size: clamp(1.4rem, 6vw, 2.2rem); }
+
+      #finale { padding-top: 1.5vh; }
+      #nombre-final { font-size: clamp(2rem, 10vw, 3.5rem); }
+      .sub-message  { font-size: clamp(0.75rem, 2.5vw, 1rem); }
+    }
+
+    /* ── Tablet (481px – 768px) ── */
+    @media (min-width: 481px) and (max-width: 768px) {
+
+      .lirio-container.small { width: 20vw; }
+      .lirio-container.main  { width: 28vw; }
+
+      #flores-wrapper { padding-bottom: 4vh; gap: 2.5vw; }
+
+      .foto-frame {
+        width:  clamp(140px, 24vw, 200px);
+        height: clamp(140px, 24vw, 200px);
       }
+      .lirio-container.main .foto-frame {
+        width:  clamp(170px, 30vw, 240px);
+        height: clamp(170px, 30vw, 240px);
+      }
+
+      #dedicatoria h1 { font-size: clamp(2.2rem, 7vw, 3.5rem); }
+      #nombre-final   { font-size: clamp(3rem, 12vw, 6rem); }
+    }
+
+    /* ── Escritorio grande ── */
+    @media (min-width: 1200px) {
+      .lirio-container.small { width: 140px; }
+      .lirio-container.main  { width: 200px; }
     }
 
     /* =====================================================
@@ -950,7 +1007,7 @@
 </head>
 
 <body>
-  <audio src="yoko.mp3" autoplay loop style="display:none;"></audio>
+  <!-- El iframe de YouTube se crea al tocar la pantalla -->
 
   <!-- =====================================================
      OVERLAY DE INICIO
@@ -1482,19 +1539,27 @@
     })();
 
     /* =========================================================
-       AUDIO
-       ========================================================= */
-    /* Audio gestionado por el bloque YouTube embebido arriba */
-
-    /* =========================================================
        OVERLAY DE INICIO
        ========================================================= */
     (function initOverlay() {
       const overlay = document.getElementById('tap-overlay');
+      var started = false;
       function dismiss() {
         overlay.classList.add('fade-out');
         setTimeout(() => overlay.remove(), 700);
-        window._tryPlayAudio && window._tryPlayAudio();
+        /* Crear el iframe en el contexto del gesto del usuario
+           para que el navegador permita autoplay con sonido */
+        if (!started) {
+          started = true;
+          const frame = document.createElement('iframe');
+          frame.src = 'https://www.youtube.com/embed/T89IqbAF9Ik'
+            + '?autoplay=1&mute=0&loop=1&playlist=T89IqbAF9Ik'
+            + '&start=40&controls=0&enablejsapi=1';
+          frame.allow = 'autoplay; encrypted-media';
+          frame.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;';
+          frame.setAttribute('aria-hidden', 'true');
+          document.body.appendChild(frame);
+        }
       }
       overlay.addEventListener('click', dismiss);
       overlay.addEventListener('touchstart', dismiss, { passive: true });
